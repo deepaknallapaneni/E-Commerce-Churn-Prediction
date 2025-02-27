@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Title -->
+    <title>E-Commerce Churn Prediction</title>
+    <!-- CSS Styles -->
+    <style>
+        /* Body Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9; 
+            /* Set background color */
+            /* Set background image for body */
+            background-image: url('/static/image.jpg');
+            /* Adjust background image properties */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding-top: 20px; 
+            /* Adjust top padding */
+            min-height: 100vh; 
+            /* Ensure background covers entire viewport height */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styles */
+        header {
+            text-align: center;
+            padding: 0px 0;
+            background-color: #333;
+            color: white;
+        }
+
+        /* Container Styles */
+        .container {
+            width: 80%;
+            margin: auto;
+            padding-top: 0px; 
+            /* Adjust top padding */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Section Styles */
+        .section {
+            width: 30%;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            position: absolute;
+            max-height: calc(100vh - 150px); 
+            /* Adjust the maximum height as needed */
+        }
+
+        /* Center Section Styles */
+        .center-section {
+            margin: auto;
+            text-align: center; 
+            /* Align content to the center */
+            position: relative;
+            bottom: 10px;
+            top: -10px;
+            left: 100px;
+            height: 500px;
+            width: 600px;
+        }
+
+        /* Heading Styles */
+        .heading {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        /* Input Group Styles */
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        /* Text Input Styles */
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        /* File Upload Styles */
+        .file-upload {
+            display: block;
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Button Styles */
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+        .visualization-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: green;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 9999; /* Ensure button is on top of other elements */
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <h1>E-Commerce Churn Prediction</h1>
+        <button class="visualization-button" onclick="openVisualizations()">Open Visualizations</button>
+    </header>
+    <!-- Main content container -->
+    <div class="container">
+        <!-- Uploads CSV File section -->
+        <div class="section" style="top: 43px; left: 10px; width: 250px; padding: 5px;">
+            <div style="text-align: center;">
+                <h2 class="heading" style="font-size: 16px;">Upload CSV File</h2>
+                <p>Upload a CSV dataset file here to train the ML model for your churn prediction survey</p>
+            </div>
+            <!-- Form for uploading CSV file -->
+            <form id="uploadForm" action="/train" method="post" enctype="multipart/form-data">
+                <!-- Input for file upload -->
+                <input type="file" id="csvFile" name="csv-file" class="file-upload" accept=".csv" required>
+                <!-- Button to trigger file upload -->
+                <button type="button" onclick="uploadFile()" class="btn" style="font-size: 12px;">Train</button>
+                <!-- Button to clear file input -->
+                <button type="button" id="clearButton" class="btn btn-small clear-btn" style="font-size: 12px; padding: 3px 8px;background-color: white; color: black; border: 1px solid black;" onclick="clearFile()">Clear</button>
+            </form>
+        </div>
+        <!-- Sample Data section -->
+        <div style="display: flex; justify-content: flex-end;">
+            <div class="section center-section" style="margin-top: 10px; margin-right: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <!-- Heading for the survey section -->
+                    <h2 class="heading" style="color: green; margin-left: 120px;">Churn Prediction Survey</h2>
+                    <!-- Image for the survey section -->
+                    <img src="/static/smile.png" alt="Smile" style="width: 50px; height: 50px;margin-right: 147px;">
+                </div>                                               
+                <!-- Form for entering survey data -->
+                <form id="predictionForm" action="/predict" method="post" enctype="multipart/form-data">
+                    <div style="display: flex;">
+                        <!-- First column of features -->
+                        <div style="flex: 1; margin-right: 20px;">
+                            <!-- Input fields for various features -->
+                            <div class="input-group">
+                                <label for="E-Comm-Tenure">Tenure:</label>
+                                <input type="number" id="E-Comm-Tenure" name="E-Comm-Tenure" required>
+                            </div>
+                            <!-- Select dropdown for Preferred Login Device -->
+                            <div class="input-group">
+                                <label for="Preferred-Login-Device">Preferred Login Device:</label>
+                                <select id="Preferred-Login-Device" name="Preferred-Login-Device" required>
+                                    <option value="" disabled selected>Select</option>
+                                    <option value="1">Mobile</option>
+                                    <option value="0">Computer</option>
+                                </select>
+                            </div>
+                            <!-- Select dropdown for Preferred Payment Mode -->
+                            <div class="input-group">
+                                <label for="Preferred-Payment-Mode">Preferred Payment Mode:</label>
+                                <select id="Preferred-Payment-Mode" name="Preferred-Payment-Mode" required>
+                                    <option value="" disabled selected>Select</option>
+                                    <option value="2">Debit Card</option>
+                                    <option value="4">UPI</option>
+                                    <option value="0">Cash on Delivery</option>
+                                    <option value="1">Credit Card</option>
+                                    <option value="3">E wallet</option>
+                                </select>
+                            </div>
+                            <!-- Input field for Distance from Warehouse to Home -->
+                            <div class="input-group">
+                                <label for="Warehouse-To-Home">Distance from Warehouse to Home:</label>
+                                <input type="number" id="Warehouse-To-Home" name="Warehouse-To-Home" required>
+                            </div>
+                            <!-- Select dropdown for City Tier Level -->
+                            <div class="input-group">
+                                <label for="City-Tier-Level">City Tier Level:</label>
+                                <select id="City-Tier-Level" name="City-Tier-Level" required>
+                                    <option value="" disabled selected>Select</option>
+                                    <option value="1">Tier 1</option>
+                                    <option value="2">Tier 2</option>
+                                    <option value="3">Tier 3</option>
+                                </select>
+                            </div>
+                            <!-- Input field for Cashback Amount -->
+                            <div class="input-group">
+                                <label for="CashbackAmount">Cashback Amount:</label>
+                                <input type="number" id="CashbackAmount" name="CashbackAmount" required>
+                            </div>
+                        </div>
+                        <!-- Second column of features -->
+                        <div style="flex: 1;">
+                            <!-- Input field for Hours Spent on App -->
+                            <div class="input-group">
+                                <label for="Hour-Spend-On-App">Hours Spent on App:</label>
+                                <input type="number" id="Hour-Spend-On-App" name="Hour-Spend-On-App" required>
+                            </div>
+                            <!-- Input field for Number of Devices Registered -->
+                            <div class="input-group">
+                                <label for="Number-Of-Device-Registered">Number of Devices Registered:</label>
+                                <input type="number" id="Number-Of-Device-Registered" name="Number-Of-Device-Registered" required>
+                            </div>
+                            <!-- Input field for Satisfaction Score -->
+                            <div class="input-group">
+                                <label for="Satisfaction-Score">Satisfaction Score:</label>
+                                <input type="number" id="Satisfaction-Score" name="Satisfaction-Score" required>
+                            </div>
+                            <!-- Select dropdown for Marital Status -->
+                            <div class="input-group">
+                                <label for="Marital-Status">Marital Status:</label>
+                                <select id="Marital-Status" name="Marital-Status" required>
+                                    <option value="" disabled selected>Select</option>
+                                    <option value="0">Divorced</option>
+                                    <option value="1">Married</option>
+                                    <option value="2">Single</option>
+                                </select>
+                            </div>
+                            <!-- Input field for Complain -->
+                            <div class="input-group">
+                                <label for="Complain">Complain:</label>
+                                <input type="number" id="Complain" name="Complain" required>
+                            </div>
+                            <!-- Select dropdown for Preferred Order Category -->
+                            <div class="input-group">
+                                <label for="Preferred-Order-Category">Preferred Order Category:</label>
+                                <select id="Preferred-Order-Category" name="Preferred-Order-Category" required>
+                                    <option value="" disabled selected>Select</option>
+                                    <option value="0">Fashion</option>
+                                    <option value="1">Grocery</option>
+                                    <option value="2">Laptop Accessory</option>
+                                    <option value="3">Mobile</option>
+                                    <option value="4">Others</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Button to trigger prediction -->
+                    <button type="button" onclick="predict()" class="btn" style="font-size: 12px; text-align: left; margin-right: 500px;">Predict</button>
+                    <!-- Button to clear survey input -->
+                    <button type="button" id="clearButton" class="btn btn-small clear-btn" style="font-size: 12px; padding: 3px 8px;background-color: white; margin-right: 350px; margin-bottom: -30px; position: relative; top: -30px; color: black; border: 1px solid black;" onclick="clearinput()">Clear</button>
+                </form>
+                <!-- Placeholder for prediction result -->
+                <div id="prediction"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript code for uploading file and displaying popup -->
+    <script>
+        // Function to clear file input
+        function clearFile() {
+            var uploadForm = document.getElementById('uploadForm');
+            uploadForm.reset();
+        }
+
+        // Function to clear survey input
+        function clearinput() {
+            var uploadForm = document.getElementById('predictionForm');
+            predictionForm.reset();
+        }
+
+        // Function to upload CSV file
+        function uploadFile() {
+            var fileInput = document.getElementById('csvFile');
+            var file = fileInput.files[0];
+            var formData = new FormData();
+            formData.append('csv-file', file);
+            if (!file) {
+                alert("Please select a file.");
+                return;
+            }
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/train', true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // Display a message near the upload form
+                    var uploadForm = document.getElementById('uploadForm');
+                    var successMessage = document.createElement('p');
+                    successMessage.textContent = "File Uploaded Successfully";
+                    successMessage.style.color = 'blue';
+                    uploadForm.parentNode.insertBefore(successMessage, uploadForm.nextSibling);
+                    // Display a popup message
+                    var popupMessage = document.createElement('div');
+                    popupMessage.textContent = "Please fill out the survey to check if a customer is likely to be churned or not.";
+                    popupMessage.style.position = 'fixed';
+                    popupMessage.style.top = '50%';
+                    popupMessage.style.left = '50%';
+                    popupMessage.style.transform = 'translate(-50%, -50%)';
+                    popupMessage.style.background = '#333';
+                    popupMessage.style.color = '#fff';
+                    popupMessage.style.padding = '20px';
+                    popupMessage.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.3)';
+                    popupMessage.style.zIndex = '9999';
+                    var okButton = document.createElement('button');
+                    okButton.textContent = "OK";
+                    okButton.style.marginTop = '20px';
+                    okButton.style.display = 'block'; // Display button as block element
+                    okButton.style.marginLeft = 'auto'; // Center horizontally
+                    okButton.style.marginRight = 'auto';
+                    okButton.addEventListener('click', function() {
+                        document.body.removeChild(popupMessage);
+                    });
+
+                    popupMessage.appendChild(okButton);
+                    document.body.appendChild(popupMessage);
+                }
+            };
+            xhr.send(formData);
+        }
+        // Function to predict churn
+        function predict() {
+            var form = document.getElementById('predictionForm');
+            var formData = new FormData(form);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/predict', true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var prediction = xhr.responseText;
+                    // Create the popup message
+                    var popupMessage = document.createElement('div');
+                    popupMessage.style.position = 'fixed';
+                    popupMessage.style.top = '50%';
+                    popupMessage.style.left = '50%';
+                    popupMessage.style.transform = 'translate(-50%, -50%)';
+                    popupMessage.style.background = '#FFF'; // White background color
+                    popupMessage.style.padding = '20px';
+                    popupMessage.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.3)';
+                    popupMessage.style.zIndex = '9999';
+                    // Create a div for the heading with a different background color
+                    var headingContainer = document.createElement('div');
+                    headingContainer.style.background = '#333'; // Brown background color
+                    headingContainer.style.padding = '5px'; // Adjust padding as needed
+                    headingContainer.style.display = 'inline-block';
+                    headingContainer.style.borderRadius = '5px';
+                    // Create the heading for the churn prediction
+                    var heading = document.createElement('h2');
+                    heading.textContent = 'Churn Prediction';
+                    heading.style.color = '#FFF'; // White text color
+                    // Create the message with the prediction
+                    var message = document.createElement('p');
+                    if (prediction === '0'){
+                        message.textContent = 'Not Churned!';
+                        message.style.color = 'blue';
+                    }
+                    else if (prediction === '1'){
+                        message.textContent = 'Churned!';
+                        message.style.color = 'blue';
+                    }
+                    // Append the heading to the heading container
+                    headingContainer.appendChild(heading);
+                    // Append the heading container and the message to the popup
+                    popupMessage.appendChild(headingContainer);
+                    popupMessage.appendChild(message);
+                    // Append the popup to the body
+                    document.body.appendChild(popupMessage);
+                    // Close the popup after a certain duration (e.g., 5 seconds)
+                    setTimeout(function() {
+                        document.body.removeChild(popupMessage);
+                    }, 10000); // 5000 milliseconds = 5 seconds
+                }
+                else {
+                    // If the request fails, display an error message
+                    alert('Prediction failed. Please fill out the fields and try again.');
+                };
+            };
+            xhr.onerror = function() {
+                // If there's an error with the request, display an error message
+                document.getElementById('prediction').innerText = 'An error occurred while making the prediction. Please try again later.';
+            };
+            xhr.send(formData);
+        }
+        function openVisualizations() {
+            // Array of image paths
+            var imagePaths = [
+                'static/1.jpg',
+                'static/2.jpg',
+                'static/3.jpg',
+                'static/4.jpg'
+            ];
+
+            // Open the images page in a new window
+            // Open the images page in a new window
+            var newWindow = window.open('', '_blank');
+            newWindow.document.write('<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Visualizations</title><style>body { display: flex; flex-direction: column; align-items: center; } .background-box { background-color: #007bff; color: white; padding: 10px 20px; margin-top: 20px; } .image-container { display: flex; flex-wrap: wrap; justify-content: center; } img { margin: 10px; max-width: calc(50% - 20px); max-height: calc(50vh - 20px); object-fit: cover; }</style></head><body>');
+            // Background box for title
+            newWindow.document.write('<div class="background-box">Visualizations for User Interface</div>');
+            // Container for images
+            newWindow.document.write('<div class="image-container">');
+            // Loop through image paths and display each image in the new window
+            imagePaths.forEach(function(imageUrl) {
+                newWindow.document.write('<img src="' + imageUrl + '" alt="Image">');
+            });
+
+            newWindow.document.write('</div></body></html>');
+            newWindow.document.close();
+        }
+    </script>
+</body>
+</html>
